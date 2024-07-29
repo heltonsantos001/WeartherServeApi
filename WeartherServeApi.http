@@ -1,0 +1,6 @@
+@WeartherServeApi_HostAddress = http://localhost:5144
+
+GET {{WeartherServeApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
