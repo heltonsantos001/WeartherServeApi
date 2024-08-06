@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using WeartherServeApi.Model;
-using static System.Net.WebRequestMethods;
 
 
 namespace WeartherServeApi.Service
@@ -19,9 +18,44 @@ namespace WeartherServeApi.Service
 
         }
 
+        public async Task<ServiceResponse<WeartherMonthModel>> GetWeartherMonthService(string city)
+        {
+            string url = $"https://pro.openweathermap.org/data/2.5/forecast/climate?q={city}&appid={ApiKey}&units=metric&lang=pt_br";
+
+            ServiceResponse<WeartherMonthModel> response = new();
+
+            try {
+
+                HttpResponseMessage httpResponse = await client.GetAsync(url);
+
+                if(!httpResponse.IsSuccessStatusCode)
+                {
+                    response.Success = false;
+                    response.Message = $"erro ao consumir api: {httpResponse.RequestMessage}";
+                }
+
+                string jsonResponse = await httpResponse.Content.ReadAsStringAsync();
+
+                var ApiResponse = JsonSerializer.Deserialize<WeartherMonthModel>(jsonResponse);
+
+                response.Data = ApiResponse;
+                response.Success = ApiResponse != null;
+                response.Message = ApiResponse != null ? "Weather data retrieved successfully." : "Error deserializing weather data.";
+
+
+            }
+            catch (Exception ex) {
+
+                response.Data = null;
+                response.Success = false;
+                response.Message = $"Exception occurred: {ex.Message}";
+            }
+            return response;
+        }
+
         public async Task<ServiceResponse<WeartherNowModel>> GetWeartherService(string city)
         {
-            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={ApiKey}&lang=pt&units=metric";
+            string url = $"https://api.openweathermap.org/data/2.5/weather?q={city}&appid={ApiKey}&lang=pt_br&units=metric";
 
             ServiceResponse<WeartherNowModel> response = new();
 
