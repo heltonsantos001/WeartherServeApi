@@ -4,6 +4,7 @@ namespace WeartherServeApi.Service
 {
     public interface IServiceAirPolution
     {
-        Task<GeoLocationModel> GetLocation(string city);
+        Task<List<GeoLocationModel>> GetLocation(string city);
+        Task<ServiceResponse<AirPolutionModel>> GetAirPolution(string city);
     }
 }
