@@ -31,7 +31,7 @@ namespace WeartherServeApi.Service
                 HttpResponseMessage Httpresponse = await _client.GetAsync(url);
 
                 if (!Httpresponse.IsSuccessStatusCode) {
-                    response.Message = $"City not found. {Httpresponse.RequestMessage}";
+                    response.Message = $"City not found!. {Httpresponse.RequestMessage}";
                     return response;
                 } 
 
@@ -40,14 +40,11 @@ namespace WeartherServeApi.Service
                 if (string.IsNullOrEmpty(jsonResponse))
                 {
                     response.Message = "not found";
+
+                    return response;
                 }
 
                 var airPolution = JsonSerializer.Deserialize<AirPolutionModel>(jsonResponse);
-
-                if (airPolution == null) {
-                    response.Data = airPolution;
-                    response.Message = $"City not found.";
-                }
 
                 response.Data = airPolution;
                 response.Success = true;
