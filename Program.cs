@@ -10,6 +10,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<IServiceWearther, ServiceWearther>();
+builder.Services.AddSingleton<IServiceAirPolution,  ServiceAirPolution>();
 
 builder.Services.AddHttpClient();
 

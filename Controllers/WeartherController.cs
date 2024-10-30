@@ -12,7 +12,6 @@ namespace WeartherServeApi.Controllers
 
         private readonly IServiceWearther _serviceWearther;
 
-
         public WeatherController(IServiceWearther serviceWearther)
         {
             _serviceWearther = serviceWearther;
@@ -22,21 +21,32 @@ namespace WeartherServeApi.Controllers
         public async Task<ActionResult<ServiceResponse<WeartherNowModel>>> GetWearther(string city)
         {
 
-            ServiceResponse<WeartherNowModel> response = await _serviceWearther.GetWeartherService(city);
-
+            ServiceResponse<WeartherNowModel> response = new();
+            try { 
+                response = await _serviceWearther.GetWeartherService(city);
+            } 
+            catch (Exception ex) 
+            {
+                response.Message = ex.Message;
+            }
             if (!response.Success) return BadRequest(response);
-
             return Ok(response);
-         
+            
         }
 
         [HttpGet("WeartherMonth")]
         public async Task<ActionResult<ServiceResponse<WeartherMonthModel>>> GetWeartherMonth(string city)
         {
-            ServiceResponse<WeartherMonthModel> response = await _serviceWearther.GetWeartherMonthService(city);
-
+            ServiceResponse<WeartherMonthModel> response = new();
+            try 
+            { 
+                response = await _serviceWearther.GetWeartherMonthService(city);
+            }
+            catch (Exception ex) 
+            {
+                response.Message = ex.Message;
+            }
             if (!response.Success) return BadRequest(response);
-
             return Ok(response);
         }
     }

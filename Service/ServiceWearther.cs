@@ -6,16 +6,15 @@ namespace WeartherServeApi.Service
 {
     public class ServiceWearther : IServiceWearther
     {
-         
-        private readonly string ApiKey = "c773e0683a1b0eb97feec80c561d87ce";
 
+        private readonly string ApiKey;
 
         private readonly HttpClient client;
 
-        public ServiceWearther(HttpClient httpClient)
+        public ServiceWearther(HttpClient httpClient, IConfiguration configuration)
         {
-            client = httpClient;
-
+            this.client = httpClient;
+            this.ApiKey = configuration["WeatherApi:ApiKey"];
         }
 
         public async Task<ServiceResponse<WeartherMonthModel>> GetWeartherMonthService(string city)
@@ -29,9 +28,8 @@ namespace WeartherServeApi.Service
                 HttpResponseMessage httpResponse = await client.GetAsync(url);
 
                 if(!httpResponse.IsSuccessStatusCode)
-                {
-                    response.Success = false;
-                    response.Message = $"erro ao consumir api: {httpResponse.RequestMessage}";
+                {                  
+                    response.Message = $"Not found {httpResponse.RequestMessage}";
                 }
 
                 string jsonResponse = await httpResponse.Content.ReadAsStringAsync();
@@ -42,12 +40,10 @@ namespace WeartherServeApi.Service
                 response.Success = ApiResponse != null;
                 response.Message = ApiResponse != null ? "Weather data retrieved successfully." : "Error deserializing weather data.";
 
-
             }
             catch (Exception ex) {
 
-                response.Data = null;
-                response.Success = false;
+                response.Data = null;          
                 response.Message = $"Exception occurred: {ex.Message}";
             }
             return response;
@@ -61,45 +57,24 @@ namespace WeartherServeApi.Service
 
             try { 
 
-                    HttpResponseMessage httpResponse = await client.GetAsync(url);
+                HttpResponseMessage httpResponse = await client.GetAsync(url);
 
-                 if (httpResponse.IsSuccessStatusCode)
-                 {
-                    string jsonResponse = await httpResponse.Content.ReadAsStringAsync();                 
-
-                    var ApiResponse = JsonSerializer.Deserialize<WeartherNowModel>(jsonResponse);
-                   
-
-                    if (ApiResponse != null)
-                    {
-                       
-                        response.Data = ApiResponse;
-                        response.Success = true;
-                        response.Message = "Weather data retrieved successfully.";
-                    }
-                    else
-                    {
-                        response.Data = null;
-                        response.Success = false;
-                        response.Message = "Error deserializing weather data.";
-                    }
-
-                }
-                else
+                if (!httpResponse.IsSuccessStatusCode)
                 {
                     response.Data = null;
-                    response.Success = false;
                     response.Message = $"Error retrieving weather data. Status code: {httpResponse.StatusCode}";
                 }
+                string jsonResponse = await httpResponse.Content.ReadAsStringAsync();                 
 
-                
-
+                var ApiResponse = JsonSerializer.Deserialize<WeartherNowModel>(jsonResponse);
+                   
+                response.Data = ApiResponse;
+                response.Success = ApiResponse != null;
+                response.Message = ApiResponse != null ? "Weather data retrieved successfully.": "Error deserializing weather data."; 
 
             }
             catch (Exception ex)
-            {
-                response.Data = null;
-                response.Success = false;
+            {               
                 response.Message = $"Exception occurred: {ex.Message}";
             }
 
